@@ -15,7 +15,7 @@ This repository provides a demonstration of establishing a TCP connection betwee
 2. Run the Python receiver script
 3. Open the Unity project in Unity Editor.
 4. Attach the `ImageSender` script to a camera in the scene. (Make sure to have multiple cameras, the camera with the script attached to it will not display anything)
-5. Update the `pythonServerIP` and `pythonServerPort` variables in the `CameraSenderTest` script to match the IP address and port of the Python receiver.
+5. Update the `pythonServerIP` and `pythonServerPort` variables in the `ImageSender` script to match the IP address and port of the Python receiver.
 6. Play the Unity scene.
 7. The camera image will be transmitted to the Python receiver script, which will display the received image using OpenCV.
 
