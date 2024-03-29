@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 public class ImageSender : MonoBehaviour
 {
@@ -15,7 +17,7 @@ public class ImageSender : MonoBehaviour
     private RenderTexture renderTexture;
 
     private const int maxSize = 60000;
-    private const float transmissionInterval = 2f; // Time interval between data transmission in seconds
+    private const float transmissionInterval = 0.5f; // Time interval between data transmission in seconds
     private float timeElapsed = 0f;
 
     private void Start()
@@ -26,23 +28,20 @@ public class ImageSender : MonoBehaviour
         // Create a RenderTexture and assign it to the camera's targetTexture
         renderTexture = new RenderTexture(256, 256, 10);
         GetComponent<Camera>().targetTexture = renderTexture;
+        texture = new Texture2D(renderTexture.width, renderTexture.height);
     }
 
-    private void Update()
+    private async void Update()
     {
         RenderTexture.active = renderTexture;
-        texture = new Texture2D(renderTexture.width, renderTexture.height);
         texture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         texture.Apply();
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            //SendDataToPython("Hello from Unity!");
-        }
         timeElapsed += Time.deltaTime;
         if (timeElapsed >= transmissionInterval)
         {
-            SendCameraData(texture);
+            //SendCameraData(texture);
+            await SendCameraData(texture);
             timeElapsed = 0f;
         }
     }
@@ -53,7 +52,7 @@ public class ImageSender : MonoBehaviour
         stream.Write(data, 0, data.Length);
     }
 
-    private void SendCameraData(Texture2D texture)
+    private async Task SendCameraData(Texture2D texture)
     {
         byte[] bytes = texture.EncodeToPNG();
         print("Transmitted data size: " + bytes.Length);
@@ -62,6 +61,8 @@ public class ImageSender : MonoBehaviour
             print("Image size exceeds the limit. Skipping transmission.");
             return;
         }
-        stream.Write(bytes, 0, bytes.Length);
+        await stream.WriteAsync(bytes, 0, bytes.Length);
+
+        
     }
 }
